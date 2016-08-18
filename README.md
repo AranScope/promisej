@@ -29,6 +29,7 @@ ASync (non-blocking):
 - The last line of the function should return the default constructed promise (i.e. non-blocking)
 - When you call the function e.g. fr.readLines(), call .then(lambda success) or .then(lambda success, lambda fail)
 
+
 Sync (blocking):
 
 - Change the return type of your function to 'Promise<Object>'
