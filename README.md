@@ -58,7 +58,7 @@ When you call the function e.g. fr.readLines(), call .then(lambda success) or .t
 ### ASync (non-blocking)
 Change the return type of your function to 'Promise<Object>'
 
-At the start of the function, declare a default constructed promise i.e. Promise<Object> prom = new Promise<>();
+At the start of the function, declare a default constructed promise i.e. Promise\<Object\> prom = new Promise<>();
 
 Perform all of your 'intensive' operations inside a new thread
 
