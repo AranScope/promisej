@@ -17,6 +17,35 @@ physics.raycast(point, angle).then(
 );
 ```
 
+So if we want to make a function that uses promises and callbacks
+
+```Java
+public Promise<Image> loadImage(String url) {
+    Promise<Image> image = new Promise<>();
+    
+    new Thread(() -> {
+      Image loadedImage;
+      
+      try {
+        // you can probably work this out
+      } catch (IOException ex) {
+        image.resolve(loadedImage, false); // false as we couldn't load the image
+      }
+      
+      image.resolve(loadedImage, true); // true as we've loaded the image
+    }).start();
+    
+    return image;
+}
+```
+And the usage
+```Java
+Utils.loadImage("cats.png").then(
+  image -> drawImage(image),
+  error -> print("No cats :(")
+);
+```
+
 ## Usage
 
 ### Sync (blocking)
