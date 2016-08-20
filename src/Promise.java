@@ -21,12 +21,18 @@ import java.util.function.Consumer;
  *
  * @param <E> The return type of the promise.
  */
-public class Promise<E> {
-
+public class Promise<E>{
     private boolean success, async;
     private E data;
-    private Consumer<E> pos, neg;
+    private Prosumer<E> pos;
+    private Consumer<E> neg;
     private final CountDownLatch latch;
+
+    private Promise<E> next;
+
+    public interface Prosumer<E> {
+        Promise<E> run(E e);
+    }
 
     public Promise(E e, boolean success) {
         this.async = false;
@@ -40,25 +46,30 @@ public class Promise<E> {
         this.latch = new CountDownLatch(1);
     }
 
-    public void resolve(E e, boolean success) {
+    private void resolve(E e, boolean success) {
         try {
             latch.await();
         } catch (Exception ex) {}
 
-        if (success) pos.accept(e);
-        else neg.accept(e);
+        if (success){
+            this.next = pos.run(e);
+        } else {
+            neg.accept(e);
+        }
     }
 
-    public void then(Consumer<E> pos, Consumer<E> neg){
+    public Promise<E> then(Prosumer<E> pos, Consumer<E> neg){
         this.pos = pos;
         this.neg = neg;
         latch.countDown();
         if(!async) resolve(data, success);
+        return next;
     }
 
-    public void then(Consumer<E> pos){
+    public Promise<E> then(Prosumer<E> pos){
         this.pos = pos;
         latch.countDown();
         if(!async && success) resolve(data, success);
+        return next;
     }
 }
