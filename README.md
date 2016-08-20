@@ -1,69 +1,73 @@
-# promisej
-A lightweight Java interpretation of JS promises.
+# RouteJ
+A simple, event driven, server-client library for Java.
 
-## Examples
-Example usages can be found in the examples directory. Here is a brief look at the syntax:
+## Basics
+When a client connects, they each spawn a new 'ClientThread' on the server. This sends and receives messages to/from the client.
 
-```Java
-fr.readLines("hello.txt").then(
-  lines -> print("there are " + lines.length + " lines"),
-  error -> print("an error occured")
-);
-```
-```Java
-physics.raycast(point, angle).then(
-    hit -> print(hit.points),
-    nohit -> print("no collision")
-);
-```
-
-So if we want to make a function that uses promises and callbacks
-
-```Java
-public Promise<Image> loadImage(String url) {
-    Promise<Image> image = new Promise<>();
-    
-    new Thread(() -> {
-      Image loadedImage;
-      
-      try {
-        // you can probably work this out
-      } catch (IOException ex) {
-        image.resolve(loadedImage, false); // false as we couldn't load the image
-      }
-      
-      image.resolve(loadedImage, true); // true as we've loaded the image
-    }).start();
-    
-    return image;
-}
-```
-And the usage
-```Java
-Utils.loadImage("cats.png").then(
-  image -> drawImage(image),
-  error -> print("No cats :(")
-);
-```
+All of this is abstracted away by the ```onMessageReceived(ClientThread t, Object obj)``` and ```send(Object obj)``` methods. As well as helpful methods triggered when the server starts and stops as well as when clients connect and disconnect.
 
 ## Usage
+A full 'chat room' example is implemented in the 'ChatServer' and 'ChatClient' classes.
 
-### Sync (blocking)
-Change the return type of your function to 'Promise<Object>'
+If you want to send and receive a single object type, simply 
+modify 'Server', 'Client' and 'ClientThread' to be type bound.
 
-Return a promise constructed with the (data, wasSuccessful) constructor.
+## Not using an IDE?
+### Here the two classes you'll need
+```Java
+public class ExampleClient extends Client{
 
-When you call the function e.g. fr.readLines(), call .then(lambda success) or .then(lambda success, lambda fail)
+    public ExampleClient(String name, String address, int port) {
+        super(name, address, port);
+    }
 
-### ASync (non-blocking)
-Change the return type of your function to 'Promise<Object>'
+    @Override
+    void onConnect() {
 
-At the start of the function, declare a default constructed promise i.e. Promise\<Object\> prom = new Promise<>();
+    }
 
-Perform all of your 'intensive' operations inside a new thread
+    @Override
+    void onDisconnect() {
 
-When an operation is successful call 'promisename'.resolve(data, wasSuccessful)
+    }
 
-The last line of the function should return the default constructed promise (i.e. non-blocking)
+    @Override
+    void onMessageReceived(Object obj) {
 
-When you call the function e.g. fr.readLines(), call .then(lambda success) or .then(lambda success, lambda fail)
+    }
+}
+```
+```Java
+public class ExampleServer extends Server{
+
+    public ExampleServer(int port) {
+        super(port);
+    }
+
+    @Override
+    void onMessageReceived(ClientThread client, Object obj) {
+
+    }
+
+    @Override
+    void onClientConnect(ClientThread client) {
+
+    }
+
+    @Override
+    void onClientDisconnect(ClientThread client) {
+
+    }
+
+    @Override
+    void onStart() {
+
+    }
+
+    @Override
+    void onStop() {
+
+    }
+}
+
+```
