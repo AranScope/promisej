@@ -25,7 +25,7 @@ import java.util.function.Function;
 public class Promise<E>{
     private boolean success, async;
     private E data;
-    private Function<E> pos;
+    private Function<E, Promise<E>> pos;
     private Consumer<E> neg;
     private final CountDownLatch latch;
 
@@ -55,7 +55,7 @@ public class Promise<E>{
         }
     }
 
-    public Promise<E> then(Function<E> pos, Consumer<E> neg){
+    public Promise<E> then(Function<E, Promise<E>> pos, Consumer<E> neg){
         this.pos = pos;
         this.neg = neg;
         latch.countDown();
@@ -63,7 +63,7 @@ public class Promise<E>{
         return next;
     }
 
-    public Promise<E> then(Function<E> pos){
+    public Promise<E> then(Function<E, Promise<E>> pos){
         this.pos = pos;
         latch.countDown();
         if(!async && success) resolve(data, success);
