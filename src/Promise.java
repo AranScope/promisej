@@ -1,5 +1,6 @@
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * A lightweight Java interpretation of JS promises.
@@ -24,15 +25,11 @@ import java.util.function.Consumer;
 public class Promise<E>{
     private boolean success, async;
     private E data;
-    private Prosumer<E> pos;
+    private Function<E> pos;
     private Consumer<E> neg;
     private final CountDownLatch latch;
 
     private Promise<E> next;
-
-    public interface Prosumer<E> {
-        Promise<E> run(E e);
-    }
 
     public Promise(E e, boolean success) {
         this.async = false;
@@ -52,13 +49,13 @@ public class Promise<E>{
         } catch (Exception ex) {}
 
         if (success){
-            this.next = pos.run(e);
+            this.next = pos.apply(e);
         } else {
             neg.accept(e);
         }
     }
 
-    public Promise<E> then(Prosumer<E> pos, Consumer<E> neg){
+    public Promise<E> then(Function<E> pos, Consumer<E> neg){
         this.pos = pos;
         this.neg = neg;
         latch.countDown();
@@ -66,7 +63,7 @@ public class Promise<E>{
         return next;
     }
 
-    public Promise<E> then(Prosumer<E> pos){
+    public Promise<E> then(Function<E> pos){
         this.pos = pos;
         latch.countDown();
         if(!async && success) resolve(data, success);
